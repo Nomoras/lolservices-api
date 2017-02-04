@@ -1,0 +1,29 @@
+{
+  "name": "lolservices-api",
+  "version": "0.0.1",
+  "description": "Node backend for League-based functions",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "test": "mocha",
+    "start": "node server.js"
+  },
+  "author": "Samuel Zhou",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird-retry": "^0.10.1",
+    "body-parser": "^1.15.2",
+    "config": "^1.25.1",
+    "express": "^4.14.0",
+    "express-promise": "^0.4.0",
+    "lodash": "^4.17.2",
+    "method-override": "^2.3.7",
+    "mongodb": "^2.2.16",
+    "request-json": "^0.6.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "mocha": "^3.2.0"
+  }
+}
