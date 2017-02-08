@@ -26,11 +26,11 @@ function addSummoner(name) {
       // Insert if doesn't already exist
       if (res == null) {
         return summonerCollection.insertOne(summoner).then(function () {
-          return "Summoner added!";
+          return "Summoner added";
         });
       } else {
         //console.log(res);
-        return "Summoner already exists!";
+        return "ERROR: Summoner already exists";
       }
     });
   });
@@ -44,9 +44,9 @@ function deleteSummoner(name) {
 
     return db.collection(COL_SUMMONERS).deleteOne({"id" : summoner.id}).then(function (res) {
       if(res.result.n === 1) {
-        return "Successfully deleted " + name;
+        return "Summoner deleted";
       } else {
-        return "Nothing deleted. Summoner does not exist?";
+        return "Nothing deleted";
       };
     });
   });
