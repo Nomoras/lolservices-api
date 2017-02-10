@@ -87,11 +87,11 @@ function request(apiMethodName, parameter, queries, options) {
     retryDelay = REQUEST_DELAY;
   }
 
-  console.log("Request: " + API_URL + endpoint);
+  //console.log("Request: " + API_URL + endpoint);
 
   // Retrieve from cache if possible
   if (options.forceUpdate == false && endpoint in cache) {
-    console.log("Cached copy found for request.");
+    //console.log("Cached copy found for request.");
     return Promise.resolve(cache[endpoint]);
   }
 
