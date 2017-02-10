@@ -46,7 +46,7 @@ function deleteSummoner(name) {
       if(res.result.n === 1) {
         return "Summoner deleted";
       } else {
-        return "Nothing deleted";
+        return "ERROR: Summoner does not exist";
       };
     });
   });
