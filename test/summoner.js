@@ -57,8 +57,6 @@ describe("Summoner", () => {
           done();
         });
     });
-
-    //done();
   });
 
   describe("/POST summoner", () => {
@@ -114,8 +112,49 @@ describe("Summoner", () => {
           done();
         })
     });
+  })
 
+  describe("/DELETE summoner", () => {
+    it("should allow deletion of existing summoner", (done) => {
+      chai.request(server)
+        .delete("/api/summoner/" + EXISTING_SUMMONER.name)
+        .set(AUTH_FIELD, AUTH_KEY)
+        .set("Content-Type", "application/json")
+        .then((res) => {
+          res.should.have.status(200);
+          res.text.should.equal('Summoner deleted');
 
+          // Verify nothing is found in db
+          db.collection(COL_SUMMONER).find({"id" : EXISTING_SUMMONER.id}).toArray().then((res) => {
+            res.length.should.equal(0);
+            done();
+          });
+        })
+    });
+
+    it("should properly handle deletion of non-existing summoner", (done) => {
+      chai.request(server)
+        .delete("/api/summoner/" + NON_EXISTENT_SUMMONER.name)
+        .set(AUTH_FIELD, AUTH_KEY)
+        .set("Content-Type", "application/json")
+        .then((res) => {
+          res.should.have.status(200);
+          res.text.should.equal('ERROR: Summoner does not exist');
+          done();
+        })
+    });
+
+    it("should deny access to unauthenticated requests", (done) => {
+      chai.request(server)
+        .delete("/api/summoner" + EXISTING_SUMMONER.name)
+        .set("Content-Type", "application/json")
+        .then((res) => {
+          fail();
+        }).catch((err) => {
+          err.should.have.status(403);
+          done();
+        });
+    });
   })
 
 });
