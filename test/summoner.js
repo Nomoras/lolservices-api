@@ -40,13 +40,16 @@ describe("Summoner", () => {
     // Setup mongodb connection
     MongoClient.connect(config.get("DB_PATH")).then((connection) => {
       db = connection;
+      console.log("connection established");
       done();
     });
   });
 
   beforeEach((done) => {
     // Clear summoner collection
+    console.log("before each");
     db.dropCollection(COL_SUMMONER).then((res) => {
+      console.log("im here in the drop collection");
       // Add one summoner for existing case
       chai.request(server)
         .post("/api/summoner")
@@ -54,6 +57,7 @@ describe("Summoner", () => {
         .set("Content-Type", "application/json")
         .send(EXISTING_SUMMONER)
         .then((res) => {
+          console.log("success");
           done();
         });
     });
@@ -61,6 +65,7 @@ describe("Summoner", () => {
 
   describe("/POST summoner", () => {
     it("should allow creation of new summoner", (done) => {
+      console.log("first post test");
       // Verify response
       chai.request(server)
         .post("/api/summoner")
