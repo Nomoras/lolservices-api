@@ -8,8 +8,12 @@ var retry = require('bluebird-retry');
 // Cache for previous requests
 var cache = {};
 
-// Fill in from config
-const API_KEY = config.get("LeagueApi.API_KEY");
+// Fill in from config or environment variable
+var API_KEY = config.get("LeagueApi.API_KEY");
+
+if (API_KEY === "LeagueAPIKEY") {
+  API_KEY = process.env.LOL_API_KEY;
+}
 
 // Querying constants for API
 const REQUEST_DELAY = config.get("LeagueApi.request_delay"); // 1.25s per request to abide 500 / 10 min
