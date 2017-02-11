@@ -45,20 +45,18 @@ describe("Summoner", () => {
   });
 
   beforeEach((done) => {
-    // Clear summoner collection
-    db.dropCollection(COL_SUMMONER).then((res) => {
-      // Add one summoner for existing case
-      chai.request(server)
+    // Clear summoner collection if exists
+    db.listCollections({name: COL_SUMMONER}).toArray().then((cols) => {
+      if (cols.length > 0) {
+        return db.dropCollection(COL_SUMMONER);
+      }
+    }).then(() => {
+      return chai.request(server)
         .post("/api/summoner")
         .set(AUTH_FIELD, AUTH_KEY)
         .set("Content-Type", "application/json")
         .send(EXISTING_SUMMONER)
-        .then((res) => {
-          done();
-        });
-    }).catch((err) => {
-      done();
-    });
+    }).then(() => done());
   });
 
   describe("/POST summoner", () => {
