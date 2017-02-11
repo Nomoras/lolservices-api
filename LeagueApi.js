@@ -15,8 +15,6 @@ if (API_KEY === "LeagueAPIKEY") {
   API_KEY = process.env.LOL_API_KEY;
 }
 
-console.log(API_KEY);
-
 // Querying constants for API
 const REQUEST_DELAY = config.get("LeagueApi.request_delay"); // 1.25s per request to abide 500 / 10 min
 const REGION = 'na'

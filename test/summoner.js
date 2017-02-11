@@ -57,7 +57,6 @@ describe("Summoner", () => {
           done();
         });
     }).catch((err) => {
-      console.log(err);
       done();
     });
   });
