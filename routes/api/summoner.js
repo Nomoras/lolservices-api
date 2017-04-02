@@ -11,5 +11,11 @@ function deleteSummoner (req, res) {
   res.send(lolDb.deleteSummoner(req.params.name));
 };
 
+// Initiate complete update of summoners in db
+function updateAllSummoners (req, res) {
+  res.send({"res" : lolDb.updateAllSummoners()});
+}
+
 module.exports.add = addSummoner;
 module.exports.delete = deleteSummoner;
+module.exports.update = updateAllSummoners;

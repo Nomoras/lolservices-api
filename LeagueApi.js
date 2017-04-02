@@ -3,7 +3,8 @@ var jsonRequest = require('request-json');
 var config = require('config');
 var qs = require('querystring');
 var Promise = require('bluebird');
-var retry = require('bluebird-retry');
+var pThrottle = require('p-throttle');
+
 
 // Cache for previous requests
 var cache = {};
@@ -16,10 +17,11 @@ if (API_KEY === "LeagueAPIKEY") {
 }
 
 // Querying constants for API
-const REQUEST_DELAY = config.get("LeagueApi.request_delay"); // 1.25s per request to abide 500 / 10 min
+const REQUEST_DELAY = config.get("LeagueApi.request_delay") * 1000; // 1.25s per request to abide 500 / 10 min
+const MAX_TRIES = 10;
 const REGION = 'na'
-const API_URL = 'https://' + REGION + '.api.pvp.net/api/lol/'
-const STATIC_DATA_URL = "https://global.api.pvp.net/api/lol/static-data/" + REGION + "/";
+const API_URL = 'https://' + REGION + '.api.riotgames.com/api/lol/'
+const STATIC_DATA_URL = "https://global.api.riotgames.com/api/lol/static-data/" + REGION + "/";
 const MATCH_HISTORY_URL = 'matchhistory.na.leagueoflegends.com/en/#match-details/NA1/'
 
 // Endpoint version constants
@@ -37,15 +39,23 @@ const ENDPOINT = {
   'summoner-by-id': REGION + '/' + VERSION.summoner + '/summoner/',
   'matchlist': REGION + '/' + VERSION.matchlist + '/matchlist/by-summoner/',
   'match' : REGION + '/' + VERSION.match + '/match/',
-  'league' : REGION + '/' + VERSION.league + '/by-summoner/'
+  'league' : REGION + '/' + VERSION.league + '/league/by-summoner/'
 };
 
 // request client object
 var client = jsonRequest.createClient(API_URL);
 var staticClient = jsonRequest.createClient(STATIC_DATA_URL);
 
-// General query method, w/ rate limiting built in
-function query(requestClient, endpoint) {
+const query = pThrottle(rawQuery, 1, REQUEST_DELAY);
+
+// General query method - rate limitted via p-throttle
+function rawQuery(requestClient, endpoint, tries) {
+  if (tries === undefined) {
+    tries = 0;
+  }
+
+  console.log(Date.now());
+
   var currentResult = {};
 
   return requestClient.get(endpoint).then(function (result) {
@@ -54,8 +64,11 @@ function query(requestClient, endpoint) {
       currentResult = result.res.body;
       cache[endpoint] = currentResult;
       return Promise.resolve(currentResult);
+    } else if (tries < MAX_TRIES){
+      console.log(statusCode + ": " + endpoint);
+      return query(requestClient, endpoint, tries++);
     } else {
-      return Promise.reject();
+      return Promise.reject("Max tries exceeded for " + endpoint);
     }
   });
 }
@@ -91,7 +104,7 @@ function request(apiMethodName, parameter, queries, options) {
     retryDelay = REQUEST_DELAY;
   }
 
-  //console.log("Request: " + API_URL + endpoint);
+  console.log("Request: " + API_URL + endpoint);
 
   // Retrieve from cache if possible
   if (options.forceUpdate == false && endpoint in cache) {
@@ -99,17 +112,8 @@ function request(apiMethodName, parameter, queries, options) {
     return Promise.resolve(cache[endpoint]);
   }
 
-  // if not, retry until a result is achieved
-  var retryOptions = {
-    'args' : [queryClient, endpoint],
-    'interval': retryDelay,
-    'maxTries' : -1,
-    'backoff' : 1.2,
-    'max_interval' : 5000
-  };
-
-  // Retry until promise is fulfilled
-  return retry(query, retryOptions);
+  // Make request if nothing cached
+  return query(queryClient, endpoint);
 }
 
 // exports
@@ -126,4 +130,9 @@ module.exports.getMatchListFromSummoner = function (summonerId, queries) {
 // Find match by match id
 module.exports.getMatchFromId = function (matchId, queries) {
   return request('match', matchId, queries);
+}
+
+// Find summoner stat
+module.exports.getLeagueInfo = function (summonerId) {
+  return request('league', summonerId + "/entry", {}, {"isStatic" : false, "forceUpdate" : true});
 }

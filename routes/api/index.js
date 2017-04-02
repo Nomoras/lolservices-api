@@ -13,5 +13,6 @@ routes.use('/', function (req, res, next) {
 // api routes
 routes.post("/summoner", summoner.add);
 routes.delete("/summoner/:name", summoner.delete);
+routes.post('/summoner/update', summoner.update);
 
 module.exports = routes;

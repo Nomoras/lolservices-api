@@ -10,9 +10,9 @@ Projects:
 Planned Features:
 ---
 - Add and delete summoners **(complete)**
-- Get ranked information for summoners
+- Get ranked information for summoners **(complete)**
 - Parse matches for individual statistics
-- Store match list for each summoner
+- Store match list for each summoner **(complete)**
 - Aggregate match statistics based on match filters
 - Support periodic updating
 
@@ -20,11 +20,12 @@ Usage:
 ---
 
 The MongoDB path and Riot Games API key must be filled in `default.json`.
-By default, the database path is `mongodb://localhost:27017/league`. 
+By default, the database path is `mongodb://localhost:27017/league`.
 Run the application with `npm start`.
 
 Current Endpoints:
 ---
 |**URI**|**Methods**|**Notes**|
 |---|---|---|
-|`/api/summoner/:name`|POST, DELETE|Currently only mirrors League API data. |
+|`/api/summoner/:name`|POST, DELETE|Adds matches for a summoner|
+|`/api/summoner/update`|POST|Updates matches for a summoner|
