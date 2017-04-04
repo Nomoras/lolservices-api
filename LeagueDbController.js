@@ -156,12 +156,29 @@ function updateAllSummoners() {
     var summonerUpdates = [];
     summonerList.forEach((summoner) => {
       summonerUpdates.push(addSummonerMatchList(summoner.id, summoner.lastUpdated));
+      summonerUpdates.push(updateSummonerProfile(summoner.id));
     });
     return Promise.all(summonerUpdates).then(() => {
       return "Summoners successfully updated"
     });
   }).catch((err) => {
     return "Summoners failed to update" + err;
+  });
+}
+
+function updateSummonerProfile(summonerId) {
+  return lol.getSummonerById(summonerId).then(function (summonerJson) {
+    // Update name and profile icon
+    var summoner = JSON.parse(summonerJson)[summonerId];
+
+    var updateOperation = {
+      "$set" : {
+        "profileIconId" : summoner.profileIconId,
+        "name" : summoner.name
+      }
+    }
+
+    return db.collection(COL_SUMMONERS).updateOne({"id" : summonerId}, updateOperation)
   });
 }
 
@@ -177,7 +194,6 @@ function getMatchModels(matchList, summonerId) {
 
   // Get match objects for each match
   for (let index = 0; index < matchList.length; index++) {
-    //matchPromises.push(lol.getMatchFromId(matchList[index].matchId, { 'includeTimeline' : true}));
     matchPromises.push(getMatch(matchList[index].matchId));
   }
 
