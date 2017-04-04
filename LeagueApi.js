@@ -122,6 +122,11 @@ module.exports.getSummonerByName = function(name) {
   return request('summoner-by-name', name);
 }
 
+// Find summoner by id
+module.exports.getSummonerById = function(id) {
+  return request('summoner-by-id', id);
+}
+
 // Find match list by summoner id
 module.exports.getMatchListFromSummoner = function (summonerId, queries) {
   return request('matchlist', summonerId, queries, {"isStatic" : false, "forceUpdate" : true});
