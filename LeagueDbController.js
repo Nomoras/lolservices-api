@@ -1,13 +1,14 @@
 // File to deal with the database manipulation
 var lol = require('./LeagueApi');
 var _ = require("lodash");
+var config = require('config');
 
 // Constants
-const SEASON_START_TIME = 1481108400000;
+const SEASON_START_TIME = config.get("RankedConfig.SEASON_START_TIME");
 
-const RANKED_SOLO = ["RANKED_SOLO_5x5", "TEAM_BUILDER_RANKED_SOLO"];
-const RANKED_FLEX = ["RANKED_FLEX_SR", "TEAM_BUILDER_DRAFT_RANKED_5x5", "RANKED_TEAM_5x5", "RANKED_PREMADE_5x5"];
-const DEFAULT_QUEUE_TYPE = RANKED_SOLO[0];
+const RANKED_SOLO = config.get("RankedConfig.RANKED_SOLO");
+const RANKED_FLEX = config.get("RankedConfig.RANKED_FLEX");
+const DEFAULT_QUEUE_TYPE = config.get("RankedConfig.DEFAULT_QUEUE_TYPE");
 const RANKED_QUEUES = [RANKED_SOLO, RANKED_FLEX];
 
 const COL_SUMMONERS = "summoners";
@@ -60,6 +61,7 @@ function deleteSummoner(name) {
 // Adds/updates the summoner's match list to the database
 function addSummonerMatchList(summonerId, startTime, queue) {
   var queryOptions = {
+    // TODO: replace start time with SEASON_START_TIME for prod
     beginTime: (startTime == undefined) ? 1489110444000 : startTime
   };
 
