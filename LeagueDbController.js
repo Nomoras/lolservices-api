@@ -58,6 +58,96 @@ function deleteSummoner(name) {
   });
 }
 
+// Simple read on the summoner on the db. #nofilters.
+function getSummoner(name) {
+  return lol.getSummonerByName(name).then(function (summonerJson) {
+    var summoner = JSON.parse(summonerJson)[name.toLowerCase()];
+
+    return db.collection(COL_SUMMONERS).findOne({"id" : summoner.id}).then(function (res) {
+      return (res == null) ? "Summoner does not exist" : res;
+    });
+  });
+}
+
+// Get a summoner based on query options
+function getSummonerMatchStats(name, options) {
+  // Get the match list from the summoner object in the database, if it exists
+  return lol.getSummonerByName(name).then(function (summonerJson) {
+    var summ = JSON.parse(summonerJson)[name.toLowerCase()];
+    return db.collection(COL_SUMMONERS).findOne({"id" : summ.id}).then((summoner) => {
+      if (summoner == null) {
+        return "Summoner does not exist"
+      }
+
+      var filteredMatches = filterMatchList(summoner.matches, options);
+      var result = {
+        "current" : aggregateMatchStats(filteredMatches),
+        "peak" : aggregateMatchStats(filteredMatches.slice(0, getPeakRankMatchIndex(filteredMatches) + 1))
+      }
+
+      return result;
+    })
+  });
+}
+
+// Filters the match list. For use with the get summoner query. ... I need to organize all this.
+function filterMatchList(matchList, options) {
+  var queue = (options.queue == 1) ? RANKED_SOLO : RANKED_FLEX;
+  var limit = (options.limit == 0) ? matchList.length : options.limit;
+  var reverse = options.reverse;
+
+
+  // Filter by queue and then return the slice
+  var queueFilteredList = matchList.filter(match => queue.includes(match.queue));
+
+  // Makes sure limit doesn't go overboard
+  if (limit > queueFilteredList.length) {
+    limit = queueFilteredList.length;
+  }
+
+  if (reverse) {
+    return queueFilteredList.slice(queueFilteredList.length - limit, queueFilteredList.length)
+  } else {
+    return queueFilteredList.slice(0, limit);
+  }
+}
+
+// Aggregates stats from a match list
+function aggregateMatchStats(matchList) {
+  if (matchList.length == 0) {
+    return {};
+  }
+  var wins = _.reduce(matchList, function(wins, match) {
+    return wins + match.victorious;
+  }, 0)
+
+  var result = {
+    "wins" : wins,
+    "losses" : matchList.length - wins,
+    "timestamp" : matchList[matchList.length - 1].timestamp,
+    "rank" : matchList[matchList.length - 1].rank
+  }
+
+  return result;
+}
+
+function getPeakRankMatchIndex(matchList) {
+  var maxRankScore = 0;
+  var maxIndex = matchList.length - 1;
+
+  for (var index = 0; index < matchList.length; index++) {
+    if (matchList[index].rank != 0) {
+      var currentScore = getRankScore(matchList[index].rank.tier, matchList[index].rank.division, matchList[index].rank.lp);
+      if (currentScore > maxRankScore) {
+        maxRankScore = currentScore;
+        maxIndex = index;
+      }
+    }
+  }
+
+  return maxIndex;
+}
+
 // Adds/updates the summoner's match list to the database
 function addSummonerMatchList(summonerId, startTime, queue) {
   var queryOptions = {
@@ -336,3 +426,5 @@ module.exports.initDbConnection = initMongo;
 module.exports.deleteSummoner = deleteSummoner;
 module.exports.addSummoner = addSummoner;
 module.exports.updateAllSummoners = updateAllSummoners;
+module.exports.getSummoner = getSummoner;
+module.exports.getSummonerMatchStats = getSummonerMatchStats;

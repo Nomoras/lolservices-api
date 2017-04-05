@@ -27,5 +27,6 @@ Current Endpoints:
 ---
 |**URI**|**Methods**|**Notes**|
 |---|---|---|
-|`/api/summoner/:name`|POST, DELETE|Adds matches for a summoner|
+|`/api/summoner/:name`|POST, DELETE, GET|Registers/gets/deletes a raw summoner object along with its matches from the database|
+|`/api/summoner/stats/:name`|GET|Gets the summoner's current and peak stats. Currently supports query strings: `queue=1&limit=10&reverse=true` will get the stats for the last 10 solo queue games for the summoner retrieved.|
 |`/api/summoner/update`|POST|Updates matches for a summoner|

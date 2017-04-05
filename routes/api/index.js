@@ -12,7 +12,9 @@ routes.use('/', function (req, res, next) {
 
 // api routes
 routes.post("/summoner", summoner.add);
+routes.get("/summoner/stats/:name", summoner.getStats);
 routes.delete("/summoner/:name", summoner.delete);
+routes.get("/summoner/:name", summoner.get);
 routes.post('/summoner/update', summoner.update);
 
 module.exports = routes;
