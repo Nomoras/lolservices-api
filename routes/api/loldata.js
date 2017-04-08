@@ -1,6 +1,7 @@
 // Endpoint for league data
 var lolData = require('../../league/LolData');
-var lol = require('../../league/LeagueApi')
+var lol = require('../../league/LeagueApi');
+var _ = require("lodash");
 
 // Get role list
 function getRoleList(req, res) {
@@ -18,11 +19,33 @@ function getRankScore(req, res) {
 }
 
 function getDataDragonConfig(req, res) {
-  res.send(lol.getStaticData("realm"));
+  res.send(lol.getStaticData("realm").then((response) => JSON.parse(response)));
+}
+
+// Generates a map for champion name to id
+function getChampionMaps(req, res) {
+  res.send(lol.getStaticData("champion").then((response) => {
+    var championList = JSON.parse(response).data;
+
+    // Generate both maps serverside to reduce client overhead
+    var championToId = {};
+    var idToChampion = {};
+
+    _.forEach(championList, (entry) => {
+      championToId[entry.name] = entry.id;
+      idToChampion[entry.id] = entry.name;
+    });
+
+    return {
+      "championToId" : championToId,
+      "idToChampion" : idToChampion
+    }
+  }));
 }
 
 module.exports = {
   "getRoleList" : getRoleList,
   "getRankScore" : getRankScore,
-  "getDataDragonConfig" : getDataDragonConfig
+  "getDataDragonConfig" : getDataDragonConfig,
+  "getChampionMaps" : getChampionMaps
 }

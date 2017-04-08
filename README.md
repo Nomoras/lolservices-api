@@ -25,7 +25,7 @@ Run the application with `npm start`.
 
 Current Endpoints:
 ---
-|**URI**|**Methods**|**Notes**|
+|**URI**|**Methods**|**Description**|
 |---|---|---|
 |`/api/summoner/:name`|POST, DELETE, GET|Registers/gets/deletes a raw summoner object along with its matches from the database|
 |`/api/summoner/stats/:name`|GET|Gets the summoner's current and peak stats.<br>Query strings:<br>**queue**: 1 for solo queue, any other value for flex<br>**reverse**: whether or not to start the query from the most recent game<br>**limit**: maximum number of games to retrieve (after all filters are performed)<br>**champions**: comma separated list of champion ids to filter<br>**role**: comma separated list of roles to filter (top, mid, jungle, adc, support)<br>**ranklimit**: Limit games up to a certain rank being achieved
@@ -33,3 +33,4 @@ Current Endpoints:
 |`/api/loldata/roles`|GET|Gets a list of all roles currently being used|
 |`/api/loldata/rankscore`|GET|Gets a numerical equivalent to a League rating. Mandatory parameters:<br>**tier, division, lp** - Ranked information to convert to a score|
 |`/api/loldata/ddcfg`|GET|Direct call to the LoL Static Data API to get the current Data Dragon parameters|
+|`/api/loldata/champions`|GET|Gets a map from champion id to champion name, and the reverse map from name to id|
