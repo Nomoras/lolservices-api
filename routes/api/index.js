@@ -1,5 +1,6 @@
 var routes = require('express').Router();
-var summoner = require("./summoner");
+var summonerRoute = require("./summoner");
+var lolDataRoute = require("./loldata");
 
 // api authentication - placeholder
 routes.use('/', function (req, res, next) {
@@ -11,10 +12,16 @@ routes.use('/', function (req, res, next) {
 });
 
 // api routes
-routes.post("/summoner", summoner.add);
-routes.get("/summoner/stats/:name", summoner.getStats);
-routes.delete("/summoner/:name", summoner.delete);
-routes.get("/summoner/:name", summoner.get);
-routes.post('/summoner/update', summoner.update);
+// summoner
+routes.post("/summoner", summonerRoute.add);
+routes.get("/summoner/stats/:name", summonerRoute.getStats);
+routes.delete("/summoner/:name", summonerRoute.delete);
+routes.get("/summoner/:name", summonerRoute.get);
+routes.post('/summoner/update', summonerRoute.update);
+
+// lolData
+routes.get("/loldata/rankscore", lolDataRoute.getRankScore);
+routes.get("/loldata/roles", lolDataRoute.getRoleList);
+
 
 module.exports = routes;

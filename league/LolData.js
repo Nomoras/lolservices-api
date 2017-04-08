@@ -87,8 +87,8 @@ module.exports = {
 
       // Add lp
       score += lp;
-
-      return score;
     }
+
+    return score;
   }
 }
