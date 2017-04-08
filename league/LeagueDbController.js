@@ -93,7 +93,7 @@ function getSummonerMatchStats(name, options) {
 function addSummonerMatchList(summonerId, startTime, queue) {
   var queryOptions = {
     // TODO: replace start time with SEASON_START_TIME for prod
-    beginTime: (startTime == undefined) ? 1489110444000 : startTime
+    beginTime: (startTime == undefined) ? lolData.SEASON_START_TIME : startTime
   };
 
   // Get match list from api

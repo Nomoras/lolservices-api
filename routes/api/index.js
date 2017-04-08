@@ -2,15 +2,6 @@ var routes = require('express').Router();
 var summonerRoute = require("./summoner");
 var lolDataRoute = require("./loldata");
 
-// api authentication - placeholder
-routes.use('/', function (req, res, next) {
-  if (req.headers['auth'] === 'spookyghost') {
-    next();
-  } else {
-    res.status(403).send("Unauthorized");
-  }
-});
-
 // api routes
 // summoner
 routes.post("/summoner", summonerRoute.add);
