@@ -14,6 +14,7 @@ routes.use('/', function (req, res, next) {
 // api routes
 // summoner
 routes.post("/summoner", summonerRoute.add);
+routes.get('/summoner/all', summonerRoute.getAll);
 routes.get("/summoner/stats/:name", summonerRoute.getStats);
 routes.delete("/summoner/:name", summonerRoute.delete);
 routes.get("/summoner/:name", summonerRoute.get);

@@ -277,11 +277,24 @@ function getSummonerRank(id, queue) {
   });
 }
 
+function getAllSummoners() {
+  return db.collection(COL_SUMMONERS).find().project({"name" : 1, "_id" : 0}).toArray().then((resultList) => {
+    var summonerList = [];
+    _.forEach(resultList, (summoner) => {
+      summonerList.push(summoner.name);
+    });
+
+    return summonerList;
+  });
+}
 
 // Export functions
-module.exports.initDbConnection = initMongo;
-module.exports.deleteSummoner = deleteSummoner;
-module.exports.addSummoner = addSummoner;
-module.exports.updateAllSummoners = updateAllSummoners;
-module.exports.getSummoner = getSummoner;
-module.exports.getSummonerMatchStats = getSummonerMatchStats;
+module.exports = {
+  "initDbConnection" : initMongo,
+  "deleteSummoner" : deleteSummoner,
+  "addSummoner" : addSummoner,
+  "updateAllSummoners" : updateAllSummoners,
+  "getAllSummoners" : getAllSummoners,
+  "getSummoner" : getSummoner,
+  "getSummonerMatchStats" : getSummonerMatchStats
+}

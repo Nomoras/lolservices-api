@@ -17,6 +17,11 @@ function updateAllSummoners (req, res) {
   res.send({"res" : lolDb.updateAllSummoners()});
 }
 
+// Get all summoner names
+function getAllSummoners (req, res) {
+  res.send(lolDb.getAllSummoners());
+}
+
 // Get raw summoner object from db
 function getSummoner(req, res) {
   res.send(lolDb.getSummoner(req.params.name));
@@ -64,8 +69,11 @@ function getSummonerStats(req, res) {
   res.send(lolDb.getSummonerMatchStats(req.params.name, options));
 }
 
-module.exports.add = addSummoner;
-module.exports.delete = deleteSummoner;
-module.exports.update = updateAllSummoners;
-module.exports.get = getSummoner;
-module.exports.getStats = getSummonerStats;
+module.exports = {
+  "add" : addSummoner,
+  "delete" : deleteSummoner,
+  "update" : updateAllSummoners,
+  "get" : getSummoner,
+  "getAll" : getAllSummoners,
+  "getStats" : getSummonerStats
+}
