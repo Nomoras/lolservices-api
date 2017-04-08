@@ -28,7 +28,8 @@ function getSummonerStats(req, res) {
     "queue" : 1,
     "reverse" : false,
     "role" : ["top", "mid", "jungle", "adc", "support"],
-    "champions" : []
+    "champions" : [],
+    "ranklimit" : -1
   }
 
   // Overwrite options as necessary
@@ -53,6 +54,10 @@ function getSummonerStats(req, res) {
     for (var index = 0; index < options.champions.length; index++) {
       options.champions[index] = parseInt(options.champions[index]);
     }
+  }
+
+  if (req.query.ranklimit != undefined) {
+    options.ranklimit = parseInt(req.query.ranklimit);
   }
 
   res.send(lolDb.getSummonerMatchStats(req.params.name, options));

@@ -44,11 +44,15 @@ function filterMatchList(matchList, options) {
     limit = finalList.length;
   }
 
-  if (reverse) {
-    return finalList.slice(finalList.length - limit, finalList.length)
-  } else {
-    return finalList.slice(0, limit);
+  // Change limit if the results are being filtered by rank
+  if (options.ranklimit != - 1) {
+    limit = getMatchIndexUpToRank(finalList, options.ranklimit) + 1;
   }
+
+  return reverse ?
+    finalList.slice(finalList.length - limit, finalList.length) :
+    finalList.slice(0, limit);
+
 }
 
 // Aggregates stats from a match list
@@ -71,6 +75,25 @@ function aggregateMatchStats(matchList) {
   }
 
   return result;
+}
+
+function getMatchIndexUpToRank(matchList, targetScore) {
+  // Gets up to the first game that meets or exceeds the rank
+  var maxIndex = matchList.length - 1;
+
+  var i = 0;
+  while (i < matchList.length || maxIndex != matchList.length - 1) {
+    if (matchList[i].rank != 0) {
+      var matchScore = getRankScore(matchList[i].rank.tier, matchList[i].rank.division, matchList[i].rank.lp)
+      if (matchScore >= targetScore) {
+        maxIndex = i;
+      }
+    }
+    i++;
+  }
+
+  // Return the whole list if the rank is not reached
+  return maxIndex;
 }
 
 function getPeakRankMatchIndex(matchList) {
