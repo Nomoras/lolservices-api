@@ -39,7 +39,8 @@ const ENDPOINT = {
   'summoner-by-id': REGION + '/' + VERSION.summoner + '/summoner/',
   'matchlist': REGION + '/' + VERSION.matchlist + '/matchlist/by-summoner/',
   'match' : REGION + '/' + VERSION.match + '/match/',
-  'league' : REGION + '/' + VERSION.league + '/league/by-summoner/'
+  'league' : REGION + '/' + VERSION.league + '/league/by-summoner/',
+  'staticData' : VERSION.staticData + "/"
 };
 
 // request client object
@@ -89,17 +90,14 @@ function request(apiMethodName, parameter, queries, options) {
 
   // Construct url from api method based on static or non-static request
   var endpoint;
-  var retryDelay;
   var queryClient;
 
   if (options.isStatic) {
     endpoint = VERSION['staticData'] + "/" + parameter + "?" + qs.stringify(queries);
     queryClient = staticClient;
-    retryDelay = 0;
   } else {
     endpoint = ENDPOINT[apiMethodName] + parameter + "?" + qs.stringify(queries);
     queryClient = client;
-    retryDelay = REQUEST_DELAY;
   }
 
   // Retrieve from cache if possible
@@ -136,4 +134,9 @@ module.exports.getMatchFromId = function (matchId, queries) {
 // Find summoner stat
 module.exports.getLeagueInfo = function (summonerId) {
   return request('league', summonerId + "/entry", {}, {"isStatic" : false, "forceUpdate" : true});
+}
+
+// Get static data
+module.exports.getStaticData = function (param) {
+  return request('staticData', param, {}, {"isStatic" : true, "forceUpdate" : true});
 }

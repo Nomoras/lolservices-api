@@ -22,6 +22,7 @@ routes.post('/summoner/update', summonerRoute.update);
 // lolData
 routes.get("/loldata/rankscore", lolDataRoute.getRankScore);
 routes.get("/loldata/roles", lolDataRoute.getRoleList);
+routes.get("/loldata/ddcfg", lolDataRoute.getDataDragonConfig);
 
 
 module.exports = routes;

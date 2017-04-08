@@ -1,5 +1,6 @@
 // Endpoint for league data
 var lolData = require('../../league/LolData');
+var lol = require('../../league/LeagueApi')
 
 // Get role list
 function getRoleList(req, res) {
@@ -16,5 +17,12 @@ function getRankScore(req, res) {
   }
 }
 
-module.exports.getRoleList = getRoleList;
-module.exports.getRankScore = getRankScore;
+function getDataDragonConfig(req, res) {
+  res.send(lol.getStaticData("realm"));
+}
+
+module.exports = {
+  "getRoleList" : getRoleList,
+  "getRankScore" : getRankScore,
+  "getDataDragonConfig" : getDataDragonConfig
+}

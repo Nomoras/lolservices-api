@@ -32,3 +32,4 @@ Current Endpoints:
 |`/api/summoner/update`|POST|Updates matches and profile information for a summoner|
 |`/api/loldata/roles`|GET|Gets a list of all roles currently being used|
 |`/api/loldata/rankscore`|GET|Gets a numerical equivalent to a League rating. Mandatory parameters:<br>**tier, division, lp** - Ranked information to convert to a score|
+|`/api/loldata/ddcfg`|GET|Direct call to the LoL Static Data API to get the current Data Dragon parameters|
