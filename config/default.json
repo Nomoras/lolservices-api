@@ -1,6 +1,7 @@
 {
   "DB_PATH": "mongodb://localhost:27017/league",
   "APP_PORT" : 3000,
+  "REFRESH_TIME" : 900000,
   "RankedConfig" : {
     "SEASON_START_TIME" : 1481108400000,
     "RANKED_SOLO" : ["RANKED_SOLO_5x5", "TEAM_BUILDER_RANKED_SOLO"],

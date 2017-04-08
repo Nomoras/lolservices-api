@@ -39,6 +39,9 @@ MongoClient.connect(DB_PATH).then(function (db) {
   lolDb.initDbConnection(db);
   console.log('Listening on port ' + APP_PORT);
   app.listen(APP_PORT);
+
+  // Update once every 15 minutes
+  setInterval(lolDb.updateAllSummoners, config.get("REFRESH_TIME"));
 });
 
 module.exports = app;
