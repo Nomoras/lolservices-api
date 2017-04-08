@@ -35,7 +35,8 @@ function getSummonerStats(req, res) {
     "reverse" : false,
     "role" : lolData.roleList,
     "champions" : [],
-    "ranklimit" : -1
+    "ranklimit" : -1,
+    "result" : 0
   }
 
   // Overwrite options as necessary
@@ -64,6 +65,10 @@ function getSummonerStats(req, res) {
 
   if (req.query.ranklimit != undefined) {
     options.ranklimit = parseInt(req.query.ranklimit);
+  }
+
+  if (req.query.result != undefined) {
+    options.result = req.query.result;
   }
 
   res.send(lolDb.getSummonerMatchStats(req.params.name, options));

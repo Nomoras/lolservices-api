@@ -15,8 +15,15 @@ function filterMatchList(matchList, options) {
   var queueFilteredList = matchList.filter(match => queue.includes(match.queue));
   var championFilteredList = (options.champions.length == 0) ? queueFilteredList : queueFilteredList.filter(match => options.champions.includes(match.champion));
   var roleFilteredList = championFilteredList.filter(match => options.role.includes(match.role));
+  var resultFilteredList = roleFilteredList;
 
-  var finalList = roleFilteredList;
+  if (options.result == "win") {
+    resultFilteredList = roleFilteredList.filter(match => match.victorious);
+  } else if (options.result == "lose") {
+    resultFilteredList = roleFilteredList.filter(match => !match.victorious);
+  }
+
+  var finalList = resultFilteredList;
 
   // Makes sure limit doesn't go overboard
   if (limit > finalList.length) {
