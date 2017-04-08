@@ -3,7 +3,7 @@ var lol = require('./LeagueApi');
 var _ = require("lodash");
 var config = require('config');
 
-// Constants
+// Ranked Season Constants
 const SEASON_START_TIME = config.get("RankedConfig.SEASON_START_TIME");
 
 const RANKED_SOLO = config.get("RankedConfig.RANKED_SOLO");
@@ -11,6 +11,24 @@ const RANKED_FLEX = config.get("RankedConfig.RANKED_FLEX");
 const DEFAULT_QUEUE_TYPE = config.get("RankedConfig.DEFAULT_QUEUE_TYPE");
 const RANKED_QUEUES = [RANKED_SOLO, RANKED_FLEX];
 
+// Role Constants
+var ApiRole = {
+  TOP : 'TOP',
+  JUNGLE : 'NONE',
+  MID : 'MID',
+  ADC : 'DUO_CARRY',
+  SUPPORT : 'DUO_SUPPORT'
+}
+
+var Role = {
+  TOP : 'top',
+  JUNGLE : 'jungle',
+  MID : 'mid',
+  ADC : 'adc',
+  SUPPORT : 'support'
+}
+
+// DB Collection constants
 const COL_SUMMONERS = "summoners";
 const COL_MATCHES = "matches";
 
@@ -306,7 +324,7 @@ function getMatch(id) {
   // if not, get it from the api and push it into the database
   return db.collection(COL_MATCHES).findOne({"matchId" : id}).then(function (res) {
     if (res == null) {
-      return lol.getMatchFromId(id, {'includeTimeline' : true}).then((match) => {
+      return lol.getMatchFromId(id, {'includeTimeline' : false}).then((match) => {
         var parsedMatch = JSON.parse(match);
         return db.collection(COL_MATCHES).insertOne(parsedMatch).then(() => {
           return parsedMatch;
@@ -319,11 +337,17 @@ function getMatch(id) {
 }
 
 function createMatchObject(summonerId, match) {
+  var summStats = getParticipantStats(summonerId, match);
   var matchModel = {
     '_id' : match.matchId,
     'queue' : match.queueType,
     'timestamp' : match.matchCreation,
-    'victorious' : wasVictorious(summonerId, match),
+    'victorious' : summStats.winner,
+    'champion' : match.participants[getParticipantId(summonerId, match) - 1].championId,
+    'role' : getSummonerRole(summonerId, match),
+    'kills' : summStats.kills,
+    'deaths' : summStats.deaths,
+    'assists' : summStats.assists,
     'rank' : 0
   }
 
@@ -419,6 +443,29 @@ function wasVictorious(summonerId, match) {
 function getParticipantId(summonerId, match) {
   var matchParticipant = match.participantIdentities.find(participant => participant.player.summonerId == summonerId);
   return matchParticipant.participantId;
+}
+
+function getParticipantStats(summonerId, match) {
+  return match.participants[getParticipantId(summonerId, match) - 1].stats;
+}
+
+function getSummonerRole(summonerId, match) {
+  var participant = match.participants[getParticipantId(summonerId, match) - 1];
+
+  // Jungle, support and adc is contained in Role
+  if (participant.timeline.role == ApiRole.JUNGLE) {
+    return Role.JUNGLE;
+  } else if (participant.timeline.role == ApiRole.SUPPORT) {
+    return Role.SUPPORT;
+  } else if (participant.timeline.role == ApiRole.ADC) {
+    return Role.ADC;
+  } else if (participant.timeline.lane == ApiRole.TOP) {
+    return Role.TOP;
+  } else if (participant.timeline.lane == ApiRole.MID) {
+    return Role.MID;
+  } else {
+    return "none"
+  }
 }
 
 // Export functions
