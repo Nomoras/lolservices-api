@@ -4,14 +4,7 @@ var lol = require('./LeagueApi');
 var _ = require("lodash");
 var config = require('config');
 var matchParser = require('./MatchController');
-
-// Ranked Season Constants
-const SEASON_START_TIME = config.get("RankedConfig.SEASON_START_TIME");
-
-const RANKED_SOLO = config.get("RankedConfig.RANKED_SOLO");
-const RANKED_FLEX = config.get("RankedConfig.RANKED_FLEX");
-const DEFAULT_QUEUE_TYPE = config.get("RankedConfig.DEFAULT_QUEUE_TYPE");
-const RANKED_QUEUES = [RANKED_SOLO, RANKED_FLEX];
+var lolData = require('./LolData.js');
 
 // DB Collection constants
 const COL_SUMMONERS = "summoners";
@@ -29,7 +22,7 @@ function addSummoner(name) {
   return lol.getSummonerByName(name).then(function (summonerJson) {
     // parse json and add to database if summoner is not already added
     var summoner = JSON.parse(summonerJson)[name.toLowerCase()];
-    summoner.lastUpdated = SEASON_START_TIME;
+    summoner.lastUpdated = lolData.SEASON_START_TIME;
 
     var summonerCollection = db.collection(COL_SUMMONERS);
     return summonerCollection.findOne({"id" : summoner.id}).then(function (res) {
@@ -145,7 +138,7 @@ function updateMostRecentMatchStats(summonerId) {
     var matches = queryResult.matches;
     var updatePromises = [];
     // Update each queue being analyzed
-    RANKED_QUEUES.forEach((queueList) => {
+    lolData.RANKED_QUEUES.forEach((queueList) => {
       // Check if most recent match in queue has stats object
       var lastMatchIndex = matchParser.getMostRecentMatchIndex(matches, queueList);
 
@@ -259,7 +252,7 @@ function getMatch(id) {
 // Gets ranked stat value from player
 function getSummonerRank(id, queue) {
   // default queue is QUEUE_TYPE
-  queue = (queue === undefined) ? DEFAULT_QUEUE_TYPE : queue;
+  queue = (queue === undefined) ? lolData.DEFAULT_QUEUE_TYPE : queue;
 
   // query for their ranked stats
   return lol.getLeagueInfo(id).then((leaguesJson) => {

@@ -1,5 +1,6 @@
 // Handles routing for /api/summoner/:name
 var lolDb = require('../../league/LeagueDbController');
+var lolData = require('../../league/LolData');
 
 // Handle adding new summoners
 function addSummoner (req, res) {
@@ -27,7 +28,7 @@ function getSummonerStats(req, res) {
     "limit" : 0,
     "queue" : 1,
     "reverse" : false,
-    "role" : ["top", "mid", "jungle", "adc", "support"],
+    "role" : lolData.roleList,
     "champions" : [],
     "ranklimit" : -1
   }

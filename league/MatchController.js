@@ -3,32 +3,11 @@
 //  All these functions should by synchronous
 var config = require('config');
 var _ = require('lodash');
-
-const RANKED_SOLO = config.get("RankedConfig.RANKED_SOLO");
-const RANKED_FLEX = config.get("RankedConfig.RANKED_FLEX");
-const DEFAULT_QUEUE_TYPE = config.get("RankedConfig.DEFAULT_QUEUE_TYPE");
-const RANKED_QUEUES = [RANKED_SOLO, RANKED_FLEX];
-
-// Role Constants
-var ApiRole = {
-  TOP : 'TOP',
-  JUNGLE : 'NONE',
-  MID : 'MID',
-  ADC : 'DUO_CARRY',
-  SUPPORT : 'DUO_SUPPORT'
-}
-
-var Role = {
-  TOP : 'top',
-  JUNGLE : 'jungle',
-  MID : 'mid',
-  ADC : 'adc',
-  SUPPORT : 'support'
-}
+var lolData = require('./LolData.js');
 
 // Filters the match list. For use with the get summoner query. ... I need to organize all this.
 function filterMatchList(matchList, options) {
-  var queue = (options.queue == 1) ? RANKED_SOLO : RANKED_FLEX;
+  var queue = (options.queue == 1) ? lolData.RANKED_SOLO : lolData.RANKED_FLEX;
   var limit = (options.limit == 0) ? matchList.length : options.limit;
   var reverse = options.reverse;
 
@@ -84,7 +63,7 @@ function getMatchIndexUpToRank(matchList, targetScore) {
   var i = 0;
   while (i < matchList.length || maxIndex != matchList.length - 1) {
     if (matchList[i].rank != 0) {
-      var matchScore = getRankScore(matchList[i].rank.tier, matchList[i].rank.division, matchList[i].rank.lp)
+      var matchScore = lolData.getRankScore(matchList[i].rank.tier, matchList[i].rank.division, matchList[i].rank.lp)
       if (matchScore >= targetScore) {
         maxIndex = i;
       }
@@ -102,7 +81,7 @@ function getPeakRankMatchIndex(matchList) {
 
   for (var index = 0; index < matchList.length; index++) {
     if (matchList[index].rank != 0) {
-      var currentScore = getRankScore(matchList[index].rank.tier, matchList[index].rank.division, matchList[index].rank.lp);
+      var currentScore = lolData.getRankScore(matchList[index].rank.tier, matchList[index].rank.division, matchList[index].rank.lp);
       if (currentScore > maxRankScore) {
         maxRankScore = currentScore;
         maxIndex = index;
@@ -160,71 +139,18 @@ function getSummonerRole(summonerId, match) {
   var participant = match.participants[getParticipantId(summonerId, match) - 1];
 
   // Jungle, support and adc is contained in Role
-  if (participant.timeline.role == ApiRole.JUNGLE) {
-    return Role.JUNGLE;
-  } else if (participant.timeline.role == ApiRole.SUPPORT) {
-    return Role.SUPPORT;
-  } else if (participant.timeline.role == ApiRole.ADC) {
-    return Role.ADC;
-  } else if (participant.timeline.lane == ApiRole.TOP) {
-    return Role.TOP;
-  } else if (participant.timeline.lane == ApiRole.MID) {
-    return Role.MID;
+  if (participant.timeline.role == lolData.apiRole.JUNGLE) {
+    return lolData.role.JUNGLE;
+  } else if (participant.timeline.role == lolData.apiRole.SUPPORT) {
+    return lolData.role.SUPPORT;
+  } else if (participant.timeline.role == lolData.apiRole.ADC) {
+    return lolData.role.ADC;
+  } else if (participant.timeline.lane == lolData.apiRole.TOP) {
+    return lolData.role.TOP;
+  } else if (participant.timeline.lane == lolData.apiRole.MID) {
+    return lolData.role.MID;
   } else {
-    return Role.SUPPORT; // support is the most likely role to get messed up
-  }
-}
-
-function getRankScore(tier, division, lp) {
-  // 10000 per tier, 1000 per division, + lp
-  var score = 0;
-
-  if (tier == "CHALLENGER") {
-    score = 70000 + lp;
-  } else if (tier == "MASTER") {
-    score = 60000 + lp;
-  } else {
-    // Handle tier
-    switch(tier) {
-      case "BRONZE":
-        break;
-      case "SILVER":
-        score += 10000;
-        break;
-      case "GOLD":
-        score += 20000;
-        break;
-      case "PLATINUM":
-        score += 30000;
-        break;
-      case "DIAMOND":
-        score += 40000;
-        break;
-    }
-
-    // Handle division
-    switch(division) {
-      case "I":
-        score += 5000;
-        break;
-      case "II":
-        score += 4000;
-        break;
-      case "III":
-        score += 3000;
-        break;
-      case "IV":
-        score += 2000;
-        break;
-      case "V":
-        score += 1000;
-        break;
-    }
-
-    // Add lp
-    score += lp;
-
-    return score;
+    return lolData.role.SUPPORT; // support is the most likely role to get messed up
   }
 }
 
