@@ -8,7 +8,7 @@ var MongoClient = require('mongodb').MongoClient;
 var config = require('config');
 
 // User dependencies
-var lolDb = require('./LeagueDbController');
+var lolDb = require('./league/LeagueDbController');
 var routes = require('./routes');
 
 // Create express application

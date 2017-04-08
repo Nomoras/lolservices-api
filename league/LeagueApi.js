@@ -54,8 +54,6 @@ function rawQuery(requestClient, endpoint, tries) {
     tries = 0;
   }
 
-  console.log(Date.now());
-
   var currentResult = {};
 
   return requestClient.get(endpoint).then(function (result) {
@@ -103,8 +101,6 @@ function request(apiMethodName, parameter, queries, options) {
     queryClient = client;
     retryDelay = REQUEST_DELAY;
   }
-
-  console.log("Request: " + API_URL + endpoint);
 
   // Retrieve from cache if possible
   if (options.forceUpdate == false && endpoint in cache) {

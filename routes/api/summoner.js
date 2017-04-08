@@ -1,5 +1,5 @@
 // Handles routing for /api/summoner/:name
-var lolDb = require('../../LeagueDbController');
+var lolDb = require('../../league/LeagueDbController');
 
 // Handle adding new summoners
 function addSummoner (req, res) {
