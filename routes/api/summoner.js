@@ -26,7 +26,9 @@ function getSummonerStats(req, res) {
   var options = {
     "limit" : 0,
     "queue" : 1,
-    "reverse" : false
+    "reverse" : false,
+    "role" : ["top", "mid", "jungle", "adc", "support"],
+    "champions" : []
   }
 
   // Overwrite options as necessary
@@ -40,6 +42,17 @@ function getSummonerStats(req, res) {
 
   if (req.query.reverse == "true") {
     options.reverse = true;
+  }
+
+  if (req.query.role != undefined) {
+    options.role = req.query.role.split(",");
+  }
+
+  if (req.query.champions != undefined) {
+    options.champions = req.query.champions.split(",");
+    for (var index = 0; index < options.champions.length; index++) {
+      options.champions[index] = parseInt(options.champions[index]);
+    }
   }
 
   res.send(lolDb.getSummonerMatchStats(req.params.name, options));

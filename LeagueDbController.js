@@ -114,19 +114,22 @@ function filterMatchList(matchList, options) {
   var limit = (options.limit == 0) ? matchList.length : options.limit;
   var reverse = options.reverse;
 
-
-  // Filter by queue and then return the slice
+  // Filter as necessary
   var queueFilteredList = matchList.filter(match => queue.includes(match.queue));
+  var championFilteredList = (options.champions.length == 0) ? queueFilteredList : queueFilteredList.filter(match => options.champions.includes(match.champion));
+  var roleFilteredList = championFilteredList.filter(match => options.role.includes(match.role));
+
+  var finalList = roleFilteredList;
 
   // Makes sure limit doesn't go overboard
-  if (limit > queueFilteredList.length) {
-    limit = queueFilteredList.length;
+  if (limit > finalList.length) {
+    limit = finalList.length;
   }
 
   if (reverse) {
-    return queueFilteredList.slice(queueFilteredList.length - limit, queueFilteredList.length)
+    return finalList.slice(finalList.length - limit, finalList.length)
   } else {
-    return queueFilteredList.slice(0, limit);
+    return finalList.slice(0, limit);
   }
 }
 
@@ -142,6 +145,9 @@ function aggregateMatchStats(matchList) {
   var result = {
     "wins" : wins,
     "losses" : matchList.length - wins,
+    "kills" : _.sumBy(matchList, function(match) { return match.kills}),
+    "deaths" : _.sumBy(matchList, function(match) { return match.deaths}),
+    "assists" : _.sumBy(matchList, function(match) { return match.assists}),
     "timestamp" : matchList[matchList.length - 1].timestamp,
     "rank" : matchList[matchList.length - 1].rank
   }
@@ -464,7 +470,7 @@ function getSummonerRole(summonerId, match) {
   } else if (participant.timeline.lane == ApiRole.MID) {
     return Role.MID;
   } else {
-    return "none"
+    return Role.SUPPORT; // support is the most likely role to get messed up
   }
 }
 
