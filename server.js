@@ -41,6 +41,7 @@ MongoClient.connect(DB_PATH).then(function (db) {
   app.listen(APP_PORT);
 
   // Update once every 15 minutes
+  lolDb.updateAllSummoners();
   setInterval(lolDb.updateAllSummoners, config.get("REFRESH_TIME"));
 });
 

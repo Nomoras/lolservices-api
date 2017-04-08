@@ -1,5 +1,6 @@
 // Endpoint for league data
 var lolData = require('../../league/LolData');
+var lolDb = require("../../league/LeagueDbController")
 var lol = require('../../league/LeagueApi');
 var _ = require("lodash");
 
@@ -43,9 +44,14 @@ function getChampionMaps(req, res) {
   }));
 }
 
+function getLastUpdated(req, res) {
+  res.send({"time" : lolDb.getLastUpdatedTime()});
+}
+
 module.exports = {
   "getRoleList" : getRoleList,
   "getRankScore" : getRankScore,
   "getDataDragonConfig" : getDataDragonConfig,
-  "getChampionMaps" : getChampionMaps
+  "getChampionMaps" : getChampionMaps,
+  "getLastUpdated" : getLastUpdated
 }

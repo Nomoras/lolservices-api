@@ -11,6 +11,7 @@ const COL_SUMMONERS = "summoners";
 const COL_MATCHES = "matches";
 
 var db;
+var lastUpdatedTime = 0;
 
 function initMongo(connection) {
   db = connection;
@@ -180,6 +181,7 @@ function updateAllSummoners() {
     });
     return Promise.all(summonerUpdates).then(() => {
       console.log("Summoner updates completed at " + Date.now());
+      lastUpdatedTime = Date.now();
       return "Summoners successfully updated";
     });
   }).catch((err) => {
@@ -288,6 +290,10 @@ function getAllSummoners() {
   });
 }
 
+function getLastUpdatedTime() {
+  return lastUpdatedTime;
+}
+
 // Export functions
 module.exports = {
   "initDbConnection" : initMongo,
@@ -296,5 +302,6 @@ module.exports = {
   "updateAllSummoners" : updateAllSummoners,
   "getAllSummoners" : getAllSummoners,
   "getSummoner" : getSummoner,
-  "getSummonerMatchStats" : getSummonerMatchStats
+  "getSummonerMatchStats" : getSummonerMatchStats,
+  "getLastUpdatedTime" : getLastUpdatedTime
 }
