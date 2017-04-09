@@ -13,7 +13,7 @@ const RANKED_QUEUES = [RANKED_SOLO, RANKED_FLEX];
 var apiRole = {
   TOP : 'TOP',
   JUNGLE : 'NONE',
-  MID : 'MID',
+  MID : 'MIDDLE',
   ADC : 'DUO_CARRY',
   SUPPORT : 'DUO_SUPPORT'
 }
