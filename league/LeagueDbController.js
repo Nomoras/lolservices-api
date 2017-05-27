@@ -79,10 +79,8 @@ function getSummonerMatchStats(name, options) {
       }
 
       var filteredMatches = matchParser.filterMatchList(summoner.matches, options);
-      var result = {
-        "current" : matchParser.aggregateMatchStats(filteredMatches),
-        "peak" : matchParser.aggregateMatchStats(filteredMatches.slice(0, matchParser.getPeakRankMatchIndex(filteredMatches) + 1))
-      }
+      var result = options.peak ? matchParser.aggregateMatchStats(filteredMatches)
+                                : matchParser.aggregateMatchStats(filteredMatches.slice(0, matchParser.getPeakRankMatchIndex(filteredMatches) + 1));
 
       return result;
     })

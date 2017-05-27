@@ -36,7 +36,8 @@ function getSummonerStats(req, res) {
     "role" : lolData.roleList,
     "champions" : [],
     "ranklimit" : -1,
-    "result" : 0
+    "result" : 0,
+    "peak" : false
   }
 
   // Overwrite options as necessary
@@ -50,6 +51,10 @@ function getSummonerStats(req, res) {
 
   if (req.query.reverse == "true") {
     options.reverse = true;
+  }
+
+  if (req.query.peak == "true") {
+    options.peak = true;
   }
 
   if (req.query.role != undefined) {
