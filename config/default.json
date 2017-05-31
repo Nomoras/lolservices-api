@@ -1,11 +1,11 @@
 {
-  "DB_PATH": "mongodb://localhost:27017/league",
+  "DB_PATH": "your connection string here",
   "APP_PORT" : 3000,
-  "REFRESH_TIME" : 900000,
+  "REFRESH_TIME" : 450000,
   "RankedConfig" : {
     "SEASON_START_TIME" : 1481108400000,
-    "RANKED_SOLO" : ["RANKED_SOLO_5x5", "TEAM_BUILDER_RANKED_SOLO"],
-    "RANKED_FLEX" : ["RANKED_FLEX_SR", "TEAM_BUILDER_DRAFT_RANKED_5x5", "RANKED_TEAM_5x5", "RANKED_PREMADE_5x5"],
+    "RANKED_SOLO" : ["RANKED_SOLO_5x5", 4, 420],
+    "RANKED_FLEX" : ["RANKED_FLEX_SR", 440, 410, 42, 6],
     "DEFAULT_QUEUE_TYPE" : "RANKED_SOLO_5x5"
   },
   "LeagueApi" : {

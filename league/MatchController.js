@@ -114,15 +114,15 @@ function getMostRecentMatchIndex(matchList, queueList) {
   return -1;
 }
 
-function createMatchObject(summonerId, match) {
-  var summStats = getParticipantStats(summonerId, match);
+function createMatchObject(accountId, match) {
+  var summStats = getParticipantStats(accountId, match);
   var matchModel = {
-    '_id' : match.matchId,
-    'queue' : match.queueType,
-    'timestamp' : match.matchCreation,
-    'victorious' : summStats.winner,
-    'champion' : match.participants[getParticipantId(summonerId, match) - 1].championId,
-    'role' : getSummonerRole(summonerId, match),
+    '_id' : match.gameId,
+    'queue' : match.queueId,
+    'timestamp' : match.gameCreation,
+    'victorious' : summStats.win,
+    'champion' : match.participants[getParticipantId(accountId, match) - 1].championId,
+    'role' : getSummonerRole(accountId, match),
     'kills' : summStats.kills,
     'deaths' : summStats.deaths,
     'assists' : summStats.assists,
@@ -133,17 +133,17 @@ function createMatchObject(summonerId, match) {
 }
 
 // Utility functions
-function getParticipantId(summonerId, match) {
-  var matchParticipant = match.participantIdentities.find(participant => participant.player.summonerId == summonerId);
+function getParticipantId(accountId, match) {
+  var matchParticipant = match.participantIdentities.find(participant => participant.player.accountId == accountId);
   return matchParticipant.participantId;
 }
 
-function getParticipantStats(summonerId, match) {
-  return match.participants[getParticipantId(summonerId, match) - 1].stats;
+function getParticipantStats(accountId, match) {
+  return match.participants[getParticipantId(accountId, match) - 1].stats;
 }
 
-function getSummonerRole(summonerId, match) {
-  var participant = match.participants[getParticipantId(summonerId, match) - 1];
+function getSummonerRole(accountId, match) {
+  var participant = match.participants[getParticipantId(accountId, match) - 1];
 
   // Jungle, support and adc is contained in Role
   if (participant.timeline.role == lolData.apiRole.JUNGLE) {

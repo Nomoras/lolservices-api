@@ -20,12 +20,12 @@ function getRankScore(req, res) {
 }
 
 function getDataDragonConfig(req, res) {
-  res.send(lol.getStaticData("realm").then((response) => JSON.parse(response)));
+  res.send(lol.getStaticData("realms").then((response) => JSON.parse(response)));
 }
 
 // Generates a map for champion name to id
 function getChampionMaps(req, res) {
-  res.send(lol.getStaticData("champion").then((response) => {
+  res.send(lol.getStaticData("champions").then((response) => {
     var championList = JSON.parse(response).data;
 
     // Generate both maps serverside to reduce client overhead

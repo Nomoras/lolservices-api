@@ -22,7 +22,7 @@ function addSummoner(name) {
   // Lookup summoner name and information
   return lol.getSummonerByName(name).then(function (summonerJson) {
     // parse json and add to database if summoner is not already added
-    var summoner = JSON.parse(summonerJson)[name.toLowerCase()];
+    var summoner = JSON.parse(summonerJson);
     summoner.lastUpdated = lolData.SEASON_START_TIME;
 
     var summonerCollection = db.collection(COL_SUMMONERS);
@@ -31,7 +31,7 @@ function addSummoner(name) {
       if (res == null) {
         return summonerCollection.insertOne(summoner).then(function () {
           console.log(name + " being added " + Date.now());
-          return addSummonerMatchList(summoner.id);
+          return addSummonerMatchList(summoner.accountId);
         });
       } else {
         return "ERROR: Summoner already exists";
@@ -60,7 +60,7 @@ function deleteSummoner(name) {
 // Simple read on the summoner on the db. #nofilters.
 function getSummoner(name) {
   return lol.getSummonerByName(name).then(function (summonerJson) {
-    var summoner = JSON.parse(summonerJson)[name.toLowerCase()];
+    var summoner = JSON.parse(summonerJson);
 
     return db.collection(COL_SUMMONERS).findOne({"id" : summoner.id}).then(function (res) {
       return (res == null) ? "Summoner does not exist" : res;
@@ -72,7 +72,7 @@ function getSummoner(name) {
 function getSummonerMatchStats(name, options) {
   // Get the match list from the summoner object in the database, if it exists
   return lol.getSummonerByName(name).then(function (summonerJson) {
-    var summ = JSON.parse(summonerJson)[name.toLowerCase()];
+    var summ = JSON.parse(summonerJson);
     return db.collection(COL_SUMMONERS).findOne({"id" : summ.id}).then((summoner) => {
       if (summoner == null) {
         return "Summoner does not exist"
@@ -88,24 +88,22 @@ function getSummonerMatchStats(name, options) {
 }
 
 // Adds/updates the summoner's match list to the database
-function addSummonerMatchList(summonerId, startTime, queue) {
+function addSummonerMatchList(accountId, startTime, queue) {
   var queryOptions = {
-    // TODO: replace start time with SEASON_START_TIME for prod
     beginTime: (startTime == undefined) ? lolData.SEASON_START_TIME : startTime
   };
 
   // Get match list from api
-  return lol.getMatchListFromSummoner(summonerId, queryOptions).then(function (matchListJson) {
+  return lol.getMatchListFromSummoner(accountId, queryOptions).then(function (matchListJson) {
     var matchList = JSON.parse(matchListJson)["matches"];
-    return getMatchModels(matchList, summonerId).then((matchModels) => {
+    return getMatchModels(matchList, accountId).then((matchModels) => {
       // Get old match list
-      return db.collection(COL_SUMMONERS).find({"id" : summonerId}).project({"matches" : 1, "_id" : 0}).nextObject().then(function (matchResult) {
+      return db.collection(COL_SUMMONERS).find({"accountId" : accountId}).project({"matches" : 1, "_id" : 0}).nextObject().then(function (matchResult) {
         var matches = matchResult["matches"];
 
         if (matches == undefined) {
           matches = [];
         }
-
 
         // Append new models
         for (let index = 0; index < matchModels.length; index++) {
@@ -120,9 +118,9 @@ function addSummonerMatchList(summonerId, startTime, queue) {
           }
         }
 
-        return db.collection(COL_SUMMONERS).updateOne({"id" : summonerId}, updateOperation);
+        return db.collection(COL_SUMMONERS).updateOne({"accountId" : accountId}, updateOperation);
       }).then(function (res) {
-        return updateMostRecentMatchStats(summonerId);
+        return updateMostRecentMatchStats(accountId);
       });
     }).catch(function (err) {
       console.error(err);
@@ -131,10 +129,11 @@ function addSummonerMatchList(summonerId, startTime, queue) {
   });
 }
 
-function updateMostRecentMatchStats(summonerId) {
+function updateMostRecentMatchStats(accountId) {
   // query for the most recent match
-  return db.collection(COL_SUMMONERS).find({"id" : summonerId}).project({"matches" : 1, "_id" : 0}).nextObject().then(function (queryResult) {
+  return db.collection(COL_SUMMONERS).find({"accountId" : accountId}).project({"matches" : 1, "_id" : 0, "id" : 1}).nextObject().then(function (queryResult) {
     var matches = queryResult.matches;
+    var summonerId = queryResult.id;
     var updatePromises = [];
     // Update each queue being analyzed
     lolData.RANKED_QUEUES.forEach((queueList) => {
@@ -161,7 +160,7 @@ function updateMostRecentMatchStats(summonerId) {
         }
       }
 
-      return db.collection(COL_SUMMONERS).updateOne({"id" : summonerId}, updateOperation)
+      return db.collection(COL_SUMMONERS).updateOne({"accountId" : accountId}, updateOperation)
     })
   });
 }
@@ -170,11 +169,11 @@ function updateMostRecentMatchStats(summonerId) {
 
 function updateAllSummoners() {
   // Get all summoner ids from db and call update on each
-  return db.collection(COL_SUMMONERS).find().project({"id" : 1, "lastUpdated" : 1, "name" : 1, "_id" : 0}).toArray().then(function (summonerList) {
+  return db.collection(COL_SUMMONERS).find().project({"id" : 1, "lastUpdated" : 1, "name" : 1, "_id" : 0, "accountId" : 1}).toArray().then(function (summonerList) {
     var summonerUpdates = [];
     summonerList.forEach((summoner) => {
       console.log("Update queued for " + summoner.name + " at " + Date.now());
-      summonerUpdates.push(addSummonerMatchList(summoner.id, summoner.lastUpdated));
+      summonerUpdates.push(addSummonerMatchList(summoner.accountId, summoner.lastUpdated));
       summonerUpdates.push(updateSummonerProfile(summoner.id));
     });
     return Promise.all(summonerUpdates).then(() => {
@@ -192,7 +191,7 @@ function updateAllSummoners() {
 function updateSummonerProfile(summonerId) {
   return lol.getSummonerById(summonerId).then(function (summonerJson) {
     // Update name and profile icon
-    var summoner = JSON.parse(summonerJson)[summonerId];
+    var summoner = JSON.parse(summonerJson);
 
     var updateOperation = {
       "$set" : {
@@ -205,7 +204,7 @@ function updateSummonerProfile(summonerId) {
   });
 }
 
-function getMatchModels(matchList, summonerId) {
+function getMatchModels(matchList, accountId) {
   // Check empty match list
   if (matchList == undefined) {
     return Promise.resolve([]);
@@ -217,13 +216,13 @@ function getMatchModels(matchList, summonerId) {
 
   // Get match objects for each match
   for (let index = 0; index < matchList.length; index++) {
-    matchPromises.push(getMatch(matchList[index].matchId));
+    matchPromises.push(getMatch(matchList[index].gameId));
   }
 
   return Promise.all(matchPromises).then(function (matches) {
     // Add match objects to database
     for (let index = 0; index < matches.length; index++) {
-      matchModels.push(matchParser.createMatchObject(summonerId, matches[index]));
+      matchModels.push(matchParser.createMatchObject(accountId, matches[index]));
     }
 
     // Reverse order -- api returns latest first, we want latest last
@@ -235,9 +234,9 @@ function getMatchModels(matchList, summonerId) {
 function getMatch(id) {
   // Gets match from database if its found
   // if not, get it from the api and push it into the database
-  return db.collection(COL_MATCHES).findOne({"matchId" : id}).then(function (res) {
+  return db.collection(COL_MATCHES).findOne({"gameId" : id}).then(function (res) {
     if (res == null) {
-      return lol.getMatchFromId(id, {'includeTimeline' : false}).then((match) => {
+      return lol.getMatchFromId(id).then((match) => {
         var parsedMatch = JSON.parse(match);
         return db.collection(COL_MATCHES).insertOne(parsedMatch).then(() => {
           return parsedMatch;
@@ -257,10 +256,10 @@ function getSummonerRank(id, queue) {
   // query for their ranked stats
   return lol.getLeagueInfo(id).then((leaguesJson) => {
     // Get stats for correct queue
-    var leagues = JSON.parse(leaguesJson)[id];
+    var leagues = JSON.parse(leaguesJson);
     var league = 0;
     for (var i = 0; i < leagues.length; i++) {
-      if (leagues[i].queue == queue) {
+      if (leagues[i].queueType == queue) {
         league = leagues[i];
       }
     }
@@ -268,8 +267,8 @@ function getSummonerRank(id, queue) {
     if (league != 0) {
       return ({
         tier : league.tier,
-        lp : league.entries[0].leaguePoints,
-        division : league.entries[0].division
+        lp : league.leaguePoints,
+        division : league.rank
       });
     } else {
       return 0;
