@@ -31,7 +31,7 @@ function getSummoner(req, res) {
 function getSummonerStats(req, res) {
   var options = {
     "limit" : 0,
-    "queue" : 1,
+    "queue" : 100,
     "reverse" : false,
     "role" : lolData.roleList,
     "champions" : [],
