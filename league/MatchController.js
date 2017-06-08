@@ -56,6 +56,7 @@ function aggregateMatchStats(matchList) {
     "kills" : _.sumBy(matchList, function(match) { return match.kills}),
     "deaths" : _.sumBy(matchList, function(match) { return match.deaths}),
     "assists" : _.sumBy(matchList, function(match) { return match.assists}),
+    "duration" : _.sumBy(matchList, function(match) { return match.duration}),
     "timestamp" : matchList[matchList.length - 1].timestamp,
     "rank" : matchList[matchList.length - 1].rank
   }
@@ -120,6 +121,7 @@ function createMatchObject(accountId, match) {
     '_id' : match.gameId,
     'queue' : match.queueId,
     'timestamp' : match.gameCreation,
+    'duration' : match.gameDuration,
     'victorious' : summStats.win,
     'champion' : match.participants[getParticipantId(accountId, match) - 1].championId,
     'role' : getSummonerRole(accountId, match),

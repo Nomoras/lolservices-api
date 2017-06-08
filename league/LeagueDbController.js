@@ -44,7 +44,7 @@ function addSummoner(name) {
 function deleteSummoner(name) {
   // Lookup id
   return lol.getSummonerByName(name).then(function (summonerJson) {
-    var summoner = JSON.parse(summonerJson)[name.toLowerCase()];
+    var summoner = JSON.parse(summonerJson);
 
     return db.collection(COL_SUMMONERS).deleteOne({"id" : summoner.id}).then(function (res) {
       if(res.result.n === 1) {
@@ -222,7 +222,10 @@ function getMatchModels(matchList, accountId) {
   return Promise.all(matchPromises).then(function (matches) {
     // Add match objects to database
     for (let index = 0; index < matches.length; index++) {
-      matchModels.push(matchParser.createMatchObject(accountId, matches[index]));
+      var matchObject = matchParser.createMatchObject(accountId, matches[index]);
+      if (matchObject.duration > 5 * 60) { // less than 5 minutes is a remade game
+        matchModels.push(matchObject);
+      }
     }
 
     // Reverse order -- api returns latest first, we want latest last
