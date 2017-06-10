@@ -19,53 +19,54 @@ if (API_KEY === "LeagueAPIKEY") {
 // Querying constants for API
 const REQUEST_DELAY = config.get("LeagueApi.request_delay") * 1000; // 1.25s per request to abide 500 / 10 min
 const MAX_TRIES = 10;
-const REGION = 'na'
-const API_URL = 'https://' + REGION + '.api.riotgames.com/api/lol/'
-const STATIC_DATA_URL = "https://global.api.riotgames.com/api/lol/static-data/" + REGION + "/";
+const REGION = 'na1'
+const API_URL = 'https://' + REGION + '.api.riotgames.com/lol/'
 const MATCH_HISTORY_URL = 'matchhistory.na.leagueoflegends.com/en/#match-details/NA1/'
 
 // Endpoint version constants
 const VERSION = {
-  'summoner':'v1.4',
-  'matchlist':'v2.2',
-  'match':'v2.2',
-  'staticData':'v1.2',
-  'league' : 'v2.5'
+  'summoner':'v3',
+  'match':'v3',
+  'staticData':'v3',
+  'league' : 'v3'
 };
 
 // API object - valid endpoints
 const ENDPOINT = {
-  'summoner-by-name': REGION + '/' + VERSION.summoner + '/summoner/by-name/',
-  'summoner-by-id': REGION + '/' + VERSION.summoner + '/summoner/',
-  'matchlist': REGION + '/' + VERSION.matchlist + '/matchlist/by-summoner/',
-  'match' : REGION + '/' + VERSION.match + '/match/',
-  'league' : REGION + '/' + VERSION.league + '/league/by-summoner/',
-  'staticData' : VERSION.staticData + "/"
+  'summoner-by-name': 'summoner/' + VERSION.summoner + '/summoners/by-name/',
+  'summoner-by-id': 'summoner/' + VERSION.summoner + '/summoners/',
+  'matchlist': 'match/' + VERSION.match + '/matchlists/by-account/',
+  'match' :  'match/' + VERSION.match + '/matches/',
+  'league' : 'league/' + VERSION.league + '/positions/by-summoner/',
+  'staticData' : 'static-data/' + VERSION.staticData + "/"
 };
 
 // request client object
 var client = jsonRequest.createClient(API_URL);
-var staticClient = jsonRequest.createClient(STATIC_DATA_URL);
 
 const query = pThrottle(rawQuery, 1, REQUEST_DELAY);
 
 // General query method - rate limitted via p-throttle
-function rawQuery(requestClient, endpoint, tries) {
+function rawQuery(requestClient, endpoint, acceptedResponses, tries) {
   if (tries === undefined) {
     tries = 0;
+  }
+
+  if (acceptedResponses === undefined) {
+    acceptedResponses = [200];
   }
 
   var currentResult = {};
 
   return requestClient.get(endpoint).then(function (result) {
     statusCode = result.res.statusCode;
-    if (statusCode == 200) {
+    if (acceptedResponses.indexOf(statusCode) > -1) {
       currentResult = result.res.body;
       cache[endpoint] = currentResult;
       return Promise.resolve(currentResult);
     } else if (tries < MAX_TRIES){
       console.log(statusCode + ": " + endpoint);
-      return query(requestClient, endpoint, tries++);
+      return query(requestClient, endpoint, acceptedResponses, ++tries);
     } else {
       return Promise.reject("Max tries exceeded for " + endpoint);
     }
@@ -81,24 +82,15 @@ function request(apiMethodName, parameter, queries, options) {
 
   if (options == undefined) {
     options = {
-      isStatic : false,
-      forceUpdate : false
+      forceUpdate : false,
+      acceptedResponses : [200]
     }
   }
 
   queries.api_key = API_KEY;
 
   // Construct url from api method based on static or non-static request
-  var endpoint;
-  var queryClient;
-
-  if (options.isStatic) {
-    endpoint = VERSION['staticData'] + "/" + parameter + "?" + qs.stringify(queries);
-    queryClient = staticClient;
-  } else {
-    endpoint = ENDPOINT[apiMethodName] + parameter + "?" + qs.stringify(queries);
-    queryClient = client;
-  }
+  var endpoint = ENDPOINT[apiMethodName] + parameter + "?" + qs.stringify(queries);
 
   // Retrieve from cache if possible
   if (options.forceUpdate == false && endpoint in cache) {
@@ -107,7 +99,7 @@ function request(apiMethodName, parameter, queries, options) {
   }
 
   // Make request if nothing cached
-  return query(queryClient, endpoint);
+  return query(client, endpoint, options.acceptedResponses);
 }
 
 // exports
@@ -123,20 +115,20 @@ module.exports.getSummonerById = function(id) {
 
 // Find match list by summoner id
 module.exports.getMatchListFromSummoner = function (summonerId, queries) {
-  return request('matchlist', summonerId, queries, {"isStatic" : false, "forceUpdate" : true});
+  return request('matchlist', summonerId, queries, {"forceUpdate" : true, "acceptedResponses": [200, 404, 422]});
 }
 
 // Find match by match id
-module.exports.getMatchFromId = function (matchId, queries) {
-  return request('match', matchId, queries);
+module.exports.getMatchFromId = function (matchId) {
+  return request('match', matchId);
 }
 
 // Find summoner stat
 module.exports.getLeagueInfo = function (summonerId) {
-  return request('league', summonerId + "/entry", {}, {"isStatic" : false, "forceUpdate" : true});
+  return request('league', summonerId, {}, {"forceUpdate" : true});
 }
 
 // Get static data
 module.exports.getStaticData = function (param) {
-  return request('staticData', param, {}, {"isStatic" : true, "forceUpdate" : true});
+  return request('staticData', param, {}, {"forceUpdate" : true});
 }

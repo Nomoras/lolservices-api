@@ -12,7 +12,7 @@ function filterMatchList(matchList, options) {
   var reverse = options.reverse;
 
   // Filter as necessary
-  var queueFilteredList = matchList.filter(match => queue.includes(match.queue));
+  var queueFilteredList = (options.queue == 100) ? matchList : matchList.filter(match => queue.includes(match.queue));
   var championFilteredList = (options.champions.length == 0) ? queueFilteredList : queueFilteredList.filter(match => options.champions.includes(match.champion));
   var roleFilteredList = championFilteredList.filter(match => options.role.includes(match.role));
   var resultFilteredList = roleFilteredList;
@@ -56,6 +56,7 @@ function aggregateMatchStats(matchList) {
     "kills" : _.sumBy(matchList, function(match) { return match.kills}),
     "deaths" : _.sumBy(matchList, function(match) { return match.deaths}),
     "assists" : _.sumBy(matchList, function(match) { return match.assists}),
+    "duration" : _.sumBy(matchList, function(match) { return match.duration}),
     "timestamp" : matchList[matchList.length - 1].timestamp,
     "rank" : matchList[matchList.length - 1].rank
   }
@@ -114,15 +115,16 @@ function getMostRecentMatchIndex(matchList, queueList) {
   return -1;
 }
 
-function createMatchObject(summonerId, match) {
-  var summStats = getParticipantStats(summonerId, match);
+function createMatchObject(accountId, match) {
+  var summStats = getParticipantStats(accountId, match);
   var matchModel = {
-    '_id' : match.matchId,
-    'queue' : match.queueType,
-    'timestamp' : match.matchCreation,
-    'victorious' : summStats.winner,
-    'champion' : match.participants[getParticipantId(summonerId, match) - 1].championId,
-    'role' : getSummonerRole(summonerId, match),
+    '_id' : match.gameId,
+    'queue' : match.queueId,
+    'timestamp' : match.gameCreation,
+    'duration' : match.gameDuration,
+    'victorious' : summStats.win,
+    'champion' : match.participants[getParticipantId(accountId, match) - 1].championId,
+    'role' : getSummonerRole(accountId, match),
     'kills' : summStats.kills,
     'deaths' : summStats.deaths,
     'assists' : summStats.assists,
@@ -133,17 +135,17 @@ function createMatchObject(summonerId, match) {
 }
 
 // Utility functions
-function getParticipantId(summonerId, match) {
-  var matchParticipant = match.participantIdentities.find(participant => participant.player.summonerId == summonerId);
+function getParticipantId(accountId, match) {
+  var matchParticipant = match.participantIdentities.find(participant => participant.player.accountId == accountId);
   return matchParticipant.participantId;
 }
 
-function getParticipantStats(summonerId, match) {
-  return match.participants[getParticipantId(summonerId, match) - 1].stats;
+function getParticipantStats(accountId, match) {
+  return match.participants[getParticipantId(accountId, match) - 1].stats;
 }
 
-function getSummonerRole(summonerId, match) {
-  var participant = match.participants[getParticipantId(summonerId, match) - 1];
+function getSummonerRole(accountId, match) {
+  var participant = match.participants[getParticipantId(accountId, match) - 1];
 
   // Jungle, support and adc is contained in Role
   if (participant.timeline.role == lolData.apiRole.JUNGLE) {
