@@ -143,13 +143,13 @@ function updateMostRecentMatchStats(accountId) {
       if (lastMatchIndex >= 0) {
         var lastMatch = matches[lastMatchIndex];
         // check if it already has a stats object
-        if (lastMatch.rank == 0) {
+        //if (lastMatch.rank == 0) { -- temp solution to keep updating stats
           updatePromises.push(getSummonerRank(summonerId, queueList[0]).then((rank) => {
             lastMatch.rank = rank;
             matches[lastMatchIndex] = lastMatch;
             return Promise.resolve();
           }))
-        }
+        //}
       }
     });
 
