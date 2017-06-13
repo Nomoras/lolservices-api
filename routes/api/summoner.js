@@ -37,7 +37,8 @@ function getSummonerStats(req, res) {
     "champions" : [],
     "ranklimit" : -1,
     "result" : 0,
-    "peak" : false
+    "peak" : false,
+    "timestamp" : Number.MAX_SAFE_INTEGER
   }
 
   // Overwrite options as necessary
@@ -74,6 +75,10 @@ function getSummonerStats(req, res) {
 
   if (req.query.result != undefined) {
     options.result = req.query.result;
+  }
+
+  if (req.query.timestamp != undefined) {
+    options.timestamp = req.query.timestamp;
   }
 
   res.send(lolDb.getSummonerMatchStats(req.params.name, options));

@@ -23,7 +23,9 @@ function filterMatchList(matchList, options) {
     resultFilteredList = roleFilteredList.filter(match => !match.victorious);
   }
 
-  var finalList = resultFilteredList;
+  var timeFilteredList = resultFilteredList.filter(match => match.timestamp < options.timestamp);
+
+  var finalList = timeFilteredList;
 
   // Makes sure limit doesn't go overboard
   if (limit > finalList.length) {
