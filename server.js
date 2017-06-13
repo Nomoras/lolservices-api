@@ -39,6 +39,7 @@ MongoClient.connect(DB_PATH).then(function (db) {
   lolDb.initDbConnection(db);
   console.log('Listening on port ' + APP_PORT);
   app.listen(APP_PORT);
+  app.timeout = 600000; // 10 min timeout on requests
 
   // Update once every 15 minutes
   lolDb.updateAllSummoners();
