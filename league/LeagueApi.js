@@ -130,5 +130,12 @@ module.exports.getLeagueInfo = function (summonerId) {
 
 // Get static data
 module.exports.getStaticData = function (param) {
-  return request('staticData', param, {}, {"forceUpdate" : true});
+  return request('staticData', param);
+}
+
+// Clear cache
+module.exports.clearCache = function () {
+  console.log("Cache cleared:");
+  console.log(cache);
+  cache = {};
 }
