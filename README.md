@@ -36,3 +36,4 @@ Current Endpoints:
 |`/api/loldata/ddcfg`|GET|Direct call to the LoL Static Data API to get the current Data Dragon parameters|
 |`/api/loldata/champions`|GET|Gets a map from champion id to champion name, and the reverse map from name to id|
 |`/api/loldata/lastupdated`|GET|Gets the most recent update for the database, in epoch milliseconds|
+|`/api/loldata/clearcache`|POST|Clears the current query cache. Useful when new champions come out.|

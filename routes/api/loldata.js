@@ -48,10 +48,16 @@ function getLastUpdated(req, res) {
   res.send({"time" : lolDb.getLastUpdatedTime()});
 }
 
+function clearCache(req, res) {
+  lol.clearCache();
+  res.send("Cache cleared");
+}
+
 module.exports = {
   "getRoleList" : getRoleList,
   "getRankScore" : getRankScore,
   "getDataDragonConfig" : getDataDragonConfig,
   "getChampionMaps" : getChampionMaps,
-  "getLastUpdated" : getLastUpdated
+  "getLastUpdated" : getLastUpdated,
+  "clearCache" : clearCache
 }
