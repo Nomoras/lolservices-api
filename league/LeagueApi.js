@@ -133,8 +133,9 @@ module.exports.getStaticData = function (param) {
   return request('staticData', param);
 }
 
+// Clear cache
 module.exports.clearCache = function () {
-  cache = {};  
   console.log("Cache cleared:");
   console.log(cache);
+  cache = {};
 }
