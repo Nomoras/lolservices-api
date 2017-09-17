@@ -113,7 +113,7 @@ function addSummonerMatchList(accountId, startTime, queue) {
         // Update new match list and update summoner last updated time
         var updateOperation = {
           "$set" : {
-            "matches" : matches,
+            "matches" : _.uniqBy(matches, (match) => match._id),
             "lastUpdated" : matches[matches.length - 1].timestamp + 1
           }
         }
