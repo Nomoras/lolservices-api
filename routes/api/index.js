@@ -17,6 +17,6 @@ routes.get("/loldata/roles", lolDataRoute.getRoleList);
 routes.get("/loldata/ddcfg", lolDataRoute.getDataDragonConfig);
 routes.get("/loldata/champions", lolDataRoute.getChampionMaps);
 routes.get("/loldata/lastupdated", lolDataRoute.getLastUpdated);
-
+routes.post("/loldata/clearcache", lolDataRoute.clearCache);
 
 module.exports = routes;

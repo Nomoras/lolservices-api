@@ -7,7 +7,8 @@ const SEASON_START_TIME = config.get("RankedConfig.SEASON_START_TIME");
 const RANKED_SOLO = config.get("RankedConfig.RANKED_SOLO");
 const RANKED_FLEX = config.get("RankedConfig.RANKED_FLEX");
 const DEFAULT_QUEUE_TYPE = config.get("RankedConfig.DEFAULT_QUEUE_TYPE");
-const RANKED_QUEUES = [RANKED_SOLO, RANKED_FLEX];
+const LIST_RANKED_QUEUES = [RANKED_SOLO, RANKED_FLEX];
+const RANKED_QUEUES = RANKED_SOLO.concat(RANKED_FLEX);
 
 // Role Constants
 var apiRole = {
@@ -33,6 +34,7 @@ module.exports = {
   "RANKED_FLEX" : RANKED_FLEX,
   "DEFAULT_QUEUE_TYPE" : DEFAULT_QUEUE_TYPE,
   "RANKED_QUEUES" : RANKED_QUEUES,
+  "LIST_RANKED_QUEUES" : LIST_RANKED_QUEUES,
 
   // Role info
   "role" : role,

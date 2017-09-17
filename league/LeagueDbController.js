@@ -79,7 +79,7 @@ function getSummonerMatchStats(name, options) {
       }
 
       var filteredMatches = matchParser.filterMatchList(summoner.matches, options);
-      var result = options.peak ? matchParser.aggregateMatchStats(filteredMatches)
+      var result = !options.peak ? matchParser.aggregateMatchStats(filteredMatches)
                                 : matchParser.aggregateMatchStats(filteredMatches.slice(0, matchParser.getPeakRankMatchIndex(filteredMatches) + 1));
 
       return result;
@@ -136,7 +136,7 @@ function updateMostRecentMatchStats(accountId) {
     var summonerId = queryResult.id;
     var updatePromises = [];
     // Update each queue being analyzed
-    lolData.RANKED_QUEUES.forEach((queueList) => {
+    lolData.LIST_RANKED_QUEUES.forEach((queueList) => {
       // Check if most recent match in queue has stats object
       var lastMatchIndex = matchParser.getMostRecentMatchIndex(matches, queueList);
 
@@ -258,7 +258,7 @@ function getSummonerRank(id, queue) {
 
   // query for their ranked stats
   return lol.getLeagueInfo(id).then((leaguesJson) => {
-    // Get stats for correct queue
+    // Get stats for correct queues
     var leagues = JSON.parse(leaguesJson);
     var league = 0;
     for (var i = 0; i < leagues.length; i++) {

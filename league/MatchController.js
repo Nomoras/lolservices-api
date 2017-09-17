@@ -12,7 +12,7 @@ function filterMatchList(matchList, options) {
   var reverse = options.reverse;
 
   // Filter as necessary
-  var queueFilteredList = (options.queue == 100) ? matchList : matchList.filter(match => queue.includes(match.queue));
+var queueFilteredList = (options.queue == 100) ? matchList.filter(match => lolData.RANKED_QUEUES.includes(match.queue)) : matchList.filter(match => queue.includes(match.queue));
   var championFilteredList = (options.champions.length == 0) ? queueFilteredList : queueFilteredList.filter(match => options.champions.includes(match.champion));
   var roleFilteredList = championFilteredList.filter(match => options.role.includes(match.role));
   var resultFilteredList = roleFilteredList;
