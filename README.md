@@ -1,6 +1,7 @@
 # League Service Backend
 
 The Node server backend API for League of Legends related functions.
+[Click for an example application using this service.](http://samuelzhou.me/d1/)
 
 Projects:
 ---
